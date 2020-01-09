@@ -1,7 +1,6 @@
 package com.joonasniemi.joonaksenpainikepeli;
 
 public class User {
-    private String userId;
     private String username;
     private String password;
     private int points;
@@ -9,10 +8,21 @@ public class User {
     public User() {
     }
 
-    public User(String userId, String username, String password) {
-        this.userId = userId;
+    public User(String username, String password) {
         this.username = username;
         this.password = password;
         points = 20;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public int getPoints() {
+        return points;
     }
 }
