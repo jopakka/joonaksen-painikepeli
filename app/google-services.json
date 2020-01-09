@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "939192477108",
+    "firebase_url": "https://joonaksen-painikepeli.firebaseio.com",
+    "project_id": "joonaksen-painikepeli",
+    "storage_bucket": "joonaksen-painikepeli.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:939192477108:android:287dbe7480e296097cfee1",
+        "android_client_info": {
+          "package_name": "com.joonasniemi.joonaksenpainikepeli"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "939192477108-0luc77hfui8p6gaijhmonq5arjaafqjc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0a4JF0uSwcbUXz3v6c5P6738gmYewruw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "939192477108-0luc77hfui8p6gaijhmonq5arjaafqjc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
