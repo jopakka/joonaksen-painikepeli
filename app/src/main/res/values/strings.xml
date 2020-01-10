@@ -8,4 +8,16 @@
     <string name="textNoAccount">Eikö sinulla ole vielä tunnuksia? <b>Rekisteröidy</b></string>
     <string name="buttonLogin">Kirjaudu sisään</string>
     <string name="textCreateAccount">Luo tunnukset</string>
+    <string name="buttonLogout">Kirjaudu ulos</string>
+    <string name="errorEmailInUse">Sähköpostiosoite on jo käytössä</string>
+    <string name="errorRegisteringFailed">Rekisteröinti epäonnistui. Ole hyvä ja yritä uudestaan.</string>
+    <string name="progressLogin">Kirjaudutaan sisään&#8230;</string>
+    <string name="textLoginFailed">Kirjautuminen epäonnistui. Ole hyvä ja yritä uudestaan.</string>
+    <string name="textSettings">Asetukset</string>
+    <string name="textPoints">Pisteesi:</string>
+    <string name="progressRegistering">Rekisteröidytään&#8230;</string>
+    <string name="errorEmailEmpty">Sähköposti puuttuu</string>
+    <string name="errorPasswordTooShort">Salasanan oltava vähintään 6 merkkiä pitkä</string>
+    <string name="errorInvalidEmail">Virheellinen sähköpostiosoite</string>
+    <string name="errorPasswordNoMatch">Salasanat eivät täsmää</string>
 </resources>
