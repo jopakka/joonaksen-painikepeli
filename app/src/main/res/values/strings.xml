@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">Joonaksen painikepeli</string>
+    <string name="app_name">Joonaksen \npainikepeli</string>
+    <string name="buttonRegister">Rekisteröidy</string>
+    <string name="hintEmail">Sähköposti</string>
+    <string name="hintPassword">Salasana</string>
+    <string name="hintConfirmPassword">Vahvista salasana</string>
+    <string name="textHaveAccount">Onko sinulla jo tunnus? <b>Kirjaudu sisään</b></string>
+    <string name="textNoAccount">Eikö sinulla ole vielä tunnuksia? <b>Rekisteröidy</b></string>
+    <string name="buttonLogin">Kirjaudu sisään</string>
+    <string name="textCreateAccount">Luo tunnukset</string>
 </resources>
