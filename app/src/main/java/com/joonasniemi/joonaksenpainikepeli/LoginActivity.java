@@ -82,12 +82,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 etEmail.requestFocus();
                 return;
             }
-            if(password.isEmpty() || password.length() < 8){
-                //if password is missing or is too short
-                etPassword.setError("Password must be at least 8 characters long");
-                etPassword.requestFocus();
-                return;
-            }
 
             loginUser(email, password);
 
@@ -116,7 +110,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             } catch(FirebaseAuthUserCollisionException e) {
                                 etEmail.setError(getString(R.string.errorEmailInUse));
                                 etEmail.requestFocus();
-                            } catch(Exception e) {
+                            } catch (FirebaseAuthInvalidCredentialsException e){
+                                etEmail.setError(getString(R.string.errorInvalidCredentials));
+                                etEmail.requestFocus();
+                            }catch(Exception e) {
                                 Log.e(TAG, e.getMessage());
                             }
                             Log.d(TAG, "Error when login: " + task.getException());

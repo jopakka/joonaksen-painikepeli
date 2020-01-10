@@ -29,6 +29,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Source;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -94,7 +95,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 etEmail.requestFocus();
                 return;
             }
-            if(password.isEmpty()){
+            if(password.isEmpty() || password.length() < 6){
                 //if password is missing or is too short
                 etPassword.setError(getString(R.string.errorPasswordTooShort));
                 etPassword.requestFocus();
@@ -126,16 +127,11 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                         progressDialog.hide();
                         if (task.isSuccessful()) {
                             //user is registered successfully
-                            FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                            //gives user 20 starting points
                             String userId = mAuth.getCurrentUser().getUid();
-
-                            //give user 20 starting points
-                            User user = new User(20);
-
-                            // Add a new document with a user ID
-                            mDatabase.collection("users")
-                                    .document(userId)
-                                    .set(user);
+                            Map<String, Object> user = new HashMap<>();
+                            user.put("points", 20);
+                            mDatabase.collection("users").document(userId).set(user);
                             updateUi();
                         } else {
                             try {

@@ -14,10 +14,12 @@
     <string name="progressLogin">Kirjaudutaan sisään&#8230;</string>
     <string name="textLoginFailed">Kirjautuminen epäonnistui. Ole hyvä ja yritä uudestaan.</string>
     <string name="textSettings">Asetukset</string>
-    <string name="textPoints">Pisteesi:</string>
+    <string name="textPoints">Pisteesi: </string>
     <string name="progressRegistering">Rekisteröidytään&#8230;</string>
     <string name="errorEmailEmpty">Sähköposti puuttuu</string>
     <string name="errorPasswordTooShort">Salasanan oltava vähintään 6 merkkiä pitkä</string>
     <string name="errorInvalidEmail">Virheellinen sähköpostiosoite</string>
     <string name="errorPasswordNoMatch">Salasanat eivät täsmää</string>
+    <string name="buttonAddCounter">Lisää laskuriin arvo</string>
+    <string name="errorInvalidCredentials">Sähköposti tai salasana väärin</string>
 </resources>
