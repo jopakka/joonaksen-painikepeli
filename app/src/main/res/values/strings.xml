@@ -14,7 +14,7 @@
     <string name="progressLogin">Kirjaudutaan sisään&#8230;</string>
     <string name="textLoginFailed">Kirjautuminen epäonnistui. Ole hyvä ja yritä uudestaan.</string>
     <string name="textSettings">Asetukset</string>
-    <string name="textPoints">Pisteesi: </string>
+    <string name="textPoints">Pisteesi:</string>
     <string name="progressRegistering">Rekisteröidytään&#8230;</string>
     <string name="errorEmailEmpty">Sähköposti puuttuu</string>
     <string name="errorPasswordTooShort">Salasanan oltava vähintään 6 merkkiä pitkä</string>
@@ -22,4 +22,16 @@
     <string name="errorPasswordNoMatch">Salasanat eivät täsmää</string>
     <string name="buttonAddCounter">Lisää laskuriin arvo</string>
     <string name="errorInvalidCredentials">Sähköposti tai salasana väärin</string>
+    <string name="gameOverTitle">Pelisi loppui</string>
+    <string name="gameOverDesc">Sinulla ei ole enään pisteitä jäljellä. Haluatko aloittaa alusta, jolloin saat 20 pistettä? Muutoin sinut kirjataan ulos.</string>
+    <string name="textYes">Kyllä</string>
+    <string name="textNo">Ei</string>
+    <string name="textCongratulationTitle">Onnittelut</string>
+    <string name="textCongratulationDesc1">Voitit juuri</string>
+    <string name="textCongratulationDesc2">pistettä!</string>
+    <string name="textYea">Jee!</string>
+    <string name="textNextPriceDesc1">Seuraavaan palkintoon matkaa</string>
+    <string name="textNextPriceDesc2">painallusta</string>
+    <string name="textStepsToNextPriceTitle">Seuraava palkinto</string>
+    <string name="textOk">Selvä</string>
 </resources>
