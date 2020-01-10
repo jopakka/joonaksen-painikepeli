@@ -47,7 +47,8 @@
             android:hint="@string/hintEmail"
             android:inputType="textEmailAddress"
             android:padding="10dp"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:importantForAutofill="no" />
 
         <EditText
             android:id="@+id/etPassword"
@@ -64,7 +65,8 @@
             android:hint="@string/hintPassword"
             android:inputType="textPassword"
             android:padding="10dp"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:importantForAutofill="no" />
 
         <Button
             android:id="@+id/bLogin"

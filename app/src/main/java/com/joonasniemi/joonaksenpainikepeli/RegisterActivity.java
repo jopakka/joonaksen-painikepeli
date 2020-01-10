@@ -15,31 +15,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Source;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
-    private String TAG = "myLog";
+    private final String TAG = "myLog";
     private EditText etEmail;
     private EditText etPassword;
     private EditText etConfirmPassword;
-    private Button bRegister;
-    private TextView tvLogin;
 
     private ProgressDialog progressDialog;
 
@@ -61,19 +51,14 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
-        tvLogin = findViewById(R.id.tvLogin);
+        TextView tvLogin = findViewById(R.id.tvLogin);
 
         //buttons
-        bRegister = findViewById(R.id.bRegister);
+        Button bRegister = findViewById(R.id.bRegister);
 
         //click listeners
         bRegister.setOnClickListener(this);
         tvLogin.setOnClickListener(this);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
     }
 
     @Override
@@ -128,19 +113,19 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                         if (task.isSuccessful()) {
                             //user is registered successfully
                             //gives user 20 starting points
-                            String userId = mAuth.getCurrentUser().getUid();
+                            String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
                             Map<String, Object> user = new HashMap<>();
                             user.put("points", 20);
                             mDatabase.collection("users").document(userId).set(user);
                             updateUi();
                         } else {
                             try {
-                                throw task.getException();
+                                throw Objects.requireNonNull(task.getException());
                             } catch(FirebaseAuthUserCollisionException e) {
                                 etEmail.setError(getString(R.string.errorEmailInUse));
                                 etEmail.requestFocus();
                             } catch(Exception e) {
-                                Log.e(TAG, e.getMessage());
+                                Log.e(TAG, Objects.requireNonNull(e.getMessage()));
                                 Toast.makeText(RegisterActivity.this, getString(R.string.errorRegisteringFailed), Toast.LENGTH_SHORT).show();
                             }
                         }

@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -21,17 +20,13 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
-    private String TAG = "myLog";
-    private TextView tvRegister;
+    private final String TAG = "myLog";
     private EditText etEmail;
     private EditText etPassword;
-    private Button bLogin;
 
     private FirebaseAuth mAuth;
 
@@ -50,8 +45,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         //textfields
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
-        tvRegister = findViewById(R.id.tvRegister);
-        bLogin = findViewById(R.id.bLogin);
+        TextView tvRegister = findViewById(R.id.tvRegister);
+        Button bLogin = findViewById(R.id.bLogin);
 
         //click listeners
         bLogin.setOnClickListener(this);
@@ -75,13 +70,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
             if(email.isEmpty()){
                 //if email field is empty
-                etEmail.setError("Missing email");
+                etEmail.setError(getString(R.string.errorEmailEmpty));
                 etEmail.requestFocus();
                 return;
             }
             if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
                 //if email field is not valid
-                etEmail.setError("Invalid email");
+                etEmail.setError(getString(R.string.errorInvalidEmail));
                 etEmail.requestFocus();
                 return;
             }
@@ -109,7 +104,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             updateUi();
                         } else {
                             try {
-                                throw task.getException();
+                                throw Objects.requireNonNull(task.getException());
                             } catch(FirebaseAuthUserCollisionException e) {
                                 etEmail.setError(getString(R.string.errorEmailInUse));
                                 etEmail.requestFocus();
@@ -117,10 +112,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 etEmail.setError(getString(R.string.errorInvalidCredentials));
                                 etEmail.requestFocus();
                             }catch(Exception e) {
-                                Log.e(TAG, e.getMessage());
+                                Log.e(TAG, Objects.requireNonNull(e.getMessage()));
                             }
                             Log.d(TAG, "Error when login: " + task.getException());
-                            Toast.makeText(LoginActivity.this, "Kirjautuminen epäonnistui. Ole hyvä ja yritä uudestaan.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, getString(R.string.textLoginFailed), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

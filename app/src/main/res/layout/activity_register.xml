@@ -30,7 +30,7 @@
             android:layout_marginBottom="5dp"
             android:text="@string/textCreateAccount"
             android:textAlignment="center"
-            android:textSize="24dp" />
+            android:textSize="24sp" />
 
         <EditText
             android:id="@+id/etEmail"
@@ -47,7 +47,8 @@
             android:hint="@string/hintEmail"
             android:inputType="textEmailAddress"
             android:padding="10dp"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:importantForAutofill="no" />
 
         <EditText
             android:id="@+id/etPassword"
@@ -64,7 +65,8 @@
             android:hint="@string/hintPassword"
             android:inputType="textPassword"
             android:padding="10dp"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:importantForAutofill="no" />
 
         <EditText
             android:id="@+id/etConfirmPassword"
@@ -81,7 +83,8 @@
             android:hint="@string/hintConfirmPassword"
             android:inputType="textPassword"
             android:padding="10dp"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:importantForAutofill="no" />
 
         <Button
             android:id="@+id/bRegister"

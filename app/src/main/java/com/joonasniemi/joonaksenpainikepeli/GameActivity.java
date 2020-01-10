@@ -11,39 +11,26 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Source;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
-    private String TAG = "myLog";
-    private ImageButton ibSettings;
+    private final String TAG = "myLog";
     private TextView tvPoints;
-    private Button bAddCounter;
-    private Long userPoints;
 
     private FirebaseAuth mAuth;
-    private FirebaseFirestore mDatabase;
     private DocumentReference counterDocRef;
     private DocumentReference userDocRef;
 
@@ -54,16 +41,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         //firebase
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseFirestore.getInstance();
+        FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
         counterDocRef = mDatabase.collection("game").document("counter");
-        userDocRef = mDatabase.collection("users").document(mAuth.getCurrentUser().getUid());
+        userDocRef = mDatabase.collection("users").document(Objects.requireNonNull(mAuth.getCurrentUser()).getUid());
 
         //textfields
         tvPoints = findViewById(R.id.tvPoints);
 
         //buttons
-        ibSettings = findViewById(R.id.ibSettings);
-        bAddCounter = findViewById(R.id.bAddCounter);
+        ImageButton ibSettings = findViewById(R.id.ibSettings);
+        Button bAddCounter = findViewById(R.id.bAddCounter);
 
         //click listeners
         ibSettings.setOnClickListener(this);
@@ -74,7 +61,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     protected void onStart(){
         super.onStart();
 
-        Log.d(TAG, "User logged in: " + mAuth.getCurrentUser().getEmail());
+        Log.d(TAG, "User logged in: " + Objects.requireNonNull(mAuth.getCurrentUser()).getEmail());
 
         //listen user points from server
         userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -87,7 +74,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 if(documentSnapshot != null && documentSnapshot.exists()){
                     Log.d(TAG, "User points: " + documentSnapshot.get("points"));
                     tvPoints.setText(getString(R.string.textPoints) + " " + documentSnapshot.get("points"));
-                    userPoints = (Long) documentSnapshot.get("points");
                     if((Long) documentSnapshot.get("points") <= 0){
                         gameOver();
                     }
@@ -125,9 +111,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     if(task.isSuccessful()){
                         DocumentSnapshot ds = task.getResult();
-                        if(ds.exists()){
+                        if(Objects.requireNonNull(ds).exists()){
                             if((Long) ds.get("points") > 0) {
-                                addToCounter();
+                                counterDocRef.update("value", FieldValue.increment(1));
+                                checkPrice();
                             } else {
                                 gameOver();
                             }
@@ -142,16 +129,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void addToCounter(){
-        counterDocRef.update("value", FieldValue.increment(1));
-
+    private void checkPrice(){
         //checks if player has won
         counterDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){
                     DocumentSnapshot ds = task.getResult();
-                    if(ds.exists()){
+                    if(Objects.requireNonNull(ds).exists()){
                         userDocRef.update("points", FieldValue.increment(-1));
                         if((Long) ds.get("value") % 500 == 0) {
                             userDocRef.update("points", FieldValue.increment(250));
@@ -163,7 +148,24 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                             userDocRef.update("points", FieldValue.increment(5));
                             price(5);
                         } else {
-                            clicksToNextPrice();
+                            //checks that player points are positive
+                            userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if(task.isSuccessful()){
+                                        DocumentSnapshot ds = task.getResult();
+                                        if(Objects.requireNonNull(ds).exists()){
+                                            if((Long) ds.get("points") > 0) {
+                                                clicksToNextPrice();
+                                            }
+                                        } else {
+                                            Log.d(TAG, "No document");
+                                        }
+                                    } else {
+                                        Log.d(TAG, "Error while reading value: " + task.getException());
+                                    }
+                                }
+                            });
                         }
                     } else {
                         Log.d(TAG, "No document");
@@ -206,7 +208,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){
                     DocumentSnapshot ds = task.getResult();
-                    if(ds.exists()){
+                    if(Objects.requireNonNull(ds).exists()){
                         nextPriceAlert(10 - (Long) ds.get("value") % 10);
                     } else {
                         Log.d(TAG, "No document");
