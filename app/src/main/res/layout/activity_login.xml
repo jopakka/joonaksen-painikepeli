@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
     tools:context=".LoginActivity">
 
     <TextView
@@ -12,8 +11,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
+        android:fontFamily="@font/cherry_cream_soda"
         android:text="@string/app_name"
         android:textAlignment="center"
+        android:textColor="#000000"
         android:textSize="40sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -33,7 +34,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <EditText
-            android:id="@+id/etEmail"
+            android:id="@+id/etUsername"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginStart="10dp"
@@ -41,14 +42,14 @@
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="5dp"
             android:background="@drawable/rounded_edittext"
-            android:drawableStart="@drawable/ic_email_black_24dp"
+            android:drawableStart="@drawable/ic_person_black_24dp"
             android:drawablePadding="5dp"
             android:ems="10"
-            android:hint="@string/hintEmail"
-            android:inputType="textEmailAddress"
+            android:hint="@string/hintUsername"
+            android:importantForAutofill="no"
+            android:inputType="textPersonName"
             android:padding="10dp"
-            android:singleLine="true"
-            android:importantForAutofill="no" />
+            android:singleLine="true" />
 
         <EditText
             android:id="@+id/etPassword"
@@ -63,10 +64,10 @@
             android:drawablePadding="5dp"
             android:ems="10"
             android:hint="@string/hintPassword"
+            android:importantForAutofill="no"
             android:inputType="textPassword"
             android:padding="10dp"
-            android:singleLine="true"
-            android:importantForAutofill="no" />
+            android:singleLine="true" />
 
         <Button
             android:id="@+id/bLogin"
@@ -88,7 +89,8 @@
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
             android:text="@string/textNoAccount"
-            android:textAlignment="center" />
+            android:textAlignment="center"
+            android:textColor="#000000" />
 
     </LinearLayout>
 

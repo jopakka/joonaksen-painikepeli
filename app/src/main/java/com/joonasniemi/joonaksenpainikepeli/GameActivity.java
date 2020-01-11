@@ -4,14 +4,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Outline;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,6 +34,11 @@ import java.util.Objects;
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
     private final String TAG = "myLog";
     private TextView tvPoints;
+    private LinearLayout settingMenu;
+    private ImageButton ibSettings;
+    private Button bGoal;
+    private Button bInfo;
+    private Button bLogout;
 
     private FirebaseAuth mAuth;
     private DocumentReference counterDocRef;
@@ -48,13 +58,22 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         //textfields
         tvPoints = findViewById(R.id.tvPoints);
 
+        //layouts
+        settingMenu = findViewById(R.id.layoutSettings);
+
         //buttons
-        ImageButton ibSettings = findViewById(R.id.ibSettings);
+        ibSettings = findViewById(R.id.ibSettings);
         Button bAddCounter = findViewById(R.id.bAddCounter);
+        bGoal = findViewById(R.id.bGoal);
+        bInfo = findViewById(R.id.bInfo);
+        bLogout = findViewById(R.id.bLogout);
 
         //click listeners
         ibSettings.setOnClickListener(this);
         bAddCounter.setOnClickListener(this);
+        bGoal.setOnClickListener(this);
+        bInfo.setOnClickListener(this);
+        bLogout.setOnClickListener(this);
     }
 
     @Override
@@ -73,10 +92,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 if(documentSnapshot != null && documentSnapshot.exists()){
                     Log.d(TAG, "User points: " + documentSnapshot.get("points"));
-                    tvPoints.setText(getString(R.string.textPoints) + " " + documentSnapshot.get("points"));
-                    if((Long) documentSnapshot.get("points") <= 0){
-                        gameOver();
-                    }
+                    tvPoints.setText("" + documentSnapshot.get("points"));
                 } else {
                     Log.d(TAG, "No current data");
                 }
@@ -102,30 +118,54 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        if(v.getId() == R.id.ibSettings){
-            //TODO add settings
-            logout();
-        } else if(v.getId() == R.id.bAddCounter){
-            userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if(task.isSuccessful()){
-                        DocumentSnapshot ds = task.getResult();
-                        if(Objects.requireNonNull(ds).exists()){
-                            if((Long) ds.get("points") > 0) {
-                                counterDocRef.update("value", FieldValue.increment(1));
-                                checkPrice();
+        switch (v.getId()){
+            case R.id.ibSettings:
+                if(settingMenu.getVisibility() == View.GONE){
+                    settingMenu.setVisibility(View.VISIBLE);
+                    ibSettings.setBackground(ContextCompat.getDrawable(this, R.drawable.rounded_settingsbutton_bg));
+
+                } else{
+                    settingMenu.setVisibility(View.GONE);
+                    ibSettings.setBackground(null);
+                }
+                    break;
+
+            case R.id.bAddCounter:
+                userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            DocumentSnapshot ds = task.getResult();
+                            if(Objects.requireNonNull(ds).exists()){
+                                if((Long) ds.get("points") > 0) {
+                                    counterDocRef.update("value", FieldValue.increment(1));
+                                    checkPrice();
+                                } else {
+                                    gameOver();
+                                }
                             } else {
-                                gameOver();
+                                Log.d(TAG, "No document");
                             }
                         } else {
-                            Log.d(TAG, "No document");
+                            Log.d(TAG, "Error while reading value: " + task.getException());
                         }
-                    } else {
-                        Log.d(TAG, "Error while reading value: " + task.getException());
                     }
-                }
-            });
+                });
+                break;
+
+            case R.id.bGoal:
+                Intent goalIntent = new Intent(this, GoalActivity.class);
+                startActivity(goalIntent);
+                break;
+
+            case R.id.bInfo:
+                Intent infoIntent = new Intent(this, InfoActivity.class);
+                startActivity(infoIntent);
+                break;
+
+            case R.id.bLogout:
+                logout();
+                break;
         }
     }
 
@@ -157,6 +197,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                                         if(Objects.requireNonNull(ds).exists()){
                                             if((Long) ds.get("points") > 0) {
                                                 clicksToNextPrice();
+                                            } else {
+                                                gameOver();
                                             }
                                         } else {
                                             Log.d(TAG, "No document");

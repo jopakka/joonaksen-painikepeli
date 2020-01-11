@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Joonaksen \npainikepeli</string>
     <string name="buttonRegister">Rekisteröidy</string>
-    <string name="hintEmail">Sähköposti</string>
+    <string name="hintUsername">Käyttäjätunnus</string>
     <string name="hintPassword">Salasana</string>
     <string name="hintConfirmPassword">Vahvista salasana</string>
     <string name="textHaveAccount">Onko sinulla jo tunnus? <b>Kirjaudu sisään</b></string>
@@ -9,19 +9,18 @@
     <string name="buttonLogin">Kirjaudu sisään</string>
     <string name="textCreateAccount">Luo tunnukset</string>
     <string name="buttonLogout">Kirjaudu ulos</string>
-    <string name="errorEmailInUse">Sähköpostiosoite on jo käytössä</string>
+    <string name="errorUsernameInUse">Käyttäjätunnus on jo käytössä</string>
     <string name="errorRegisteringFailed">Rekisteröinti epäonnistui. Ole hyvä ja yritä uudestaan.</string>
     <string name="progressLogin">Kirjaudutaan sisään&#8230;</string>
     <string name="textLoginFailed">Kirjautuminen epäonnistui. Ole hyvä ja yritä uudestaan.</string>
     <string name="textSettings">Asetukset</string>
     <string name="textPoints">Pisteesi:</string>
     <string name="progressRegistering">Rekisteröidytään&#8230;</string>
-    <string name="errorEmailEmpty">Sähköposti puuttuu</string>
+    <string name="errorUsernameEmpty">Käyttäjätunnus puuttuu</string>
     <string name="errorPasswordTooShort">Salasanan oltava vähintään 6 merkkiä pitkä</string>
-    <string name="errorInvalidEmail">Virheellinen sähköpostiosoite</string>
     <string name="errorPasswordNoMatch">Salasanat eivät täsmää</string>
-    <string name="buttonAddCounter">Lisää laskuriin arvo</string>
-    <string name="errorInvalidCredentials">Sähköposti tai salasana väärin</string>
+    <string name="buttonAddCounter">Paina minua</string>
+    <string name="errorInvalidCredentials">Käyttäjätunnus ja/tai salasana väärin</string>
     <string name="gameOverTitle">Pelisi loppui</string>
     <string name="gameOverDesc">Sinulla ei ole enään pisteitä jäljellä. Haluatko aloittaa alusta, jolloin saat 20 pistettä? Muutoin sinut kirjataan ulos.</string>
     <string name="textYes">Kyllä</string>
@@ -34,4 +33,15 @@
     <string name="textNextPriceDesc2">painallusta</string>
     <string name="textStepsToNextPriceTitle">Seuraava palkinto</string>
     <string name="textOk">Selvä</string>
+    <string name="buttonGoal">Tavoite</string>
+    <string name="buttonInfo">Tietoa</string>
+    <string name="textGoalDesc">Joonaksen painikepeli on moninpeli, jossa pelaajan painettua painiketta,
+        kaikille yhteinen salainen laskuri kasvaa yhdellä ja mikäli laskuria on kasvatettu tietty määrä, niin pelaaja saa palkinnon. \n\n
+        <b>Palkinnot:</b>\n
+        Joka 500. painallus: 250 pistettä\n
+        Joka 100. painallus: 40 pistettä\n
+        Joka 10. painallus: 5 pistettä\n\n
+        Vain suurimman palkinnon voi voittaa.</string>
+    <string name="textInfoDesc">Tietokannoissa käytetty Google Firebasea. \n\n
+        Tekijä: Joonas Niemi</string>
 </resources>

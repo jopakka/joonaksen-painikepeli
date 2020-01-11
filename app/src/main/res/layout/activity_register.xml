@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
     tools:context=".RegisterActivity">
 
     <LinearLayout
@@ -30,10 +29,11 @@
             android:layout_marginBottom="5dp"
             android:text="@string/textCreateAccount"
             android:textAlignment="center"
+            android:textColor="#000000"
             android:textSize="24sp" />
 
         <EditText
-            android:id="@+id/etEmail"
+            android:id="@+id/etUsername"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginStart="10dp"
@@ -41,14 +41,14 @@
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="5dp"
             android:background="@drawable/rounded_edittext"
-            android:drawableStart="@drawable/ic_email_black_24dp"
+            android:drawableStart="@drawable/ic_person_black_24dp"
             android:drawablePadding="5dp"
             android:ems="10"
-            android:hint="@string/hintEmail"
+            android:hint="@string/hintUsername"
+            android:importantForAutofill="no"
             android:inputType="textEmailAddress"
             android:padding="10dp"
-            android:singleLine="true"
-            android:importantForAutofill="no" />
+            android:singleLine="true" />
 
         <EditText
             android:id="@+id/etPassword"
@@ -63,10 +63,10 @@
             android:drawablePadding="5dp"
             android:ems="10"
             android:hint="@string/hintPassword"
+            android:importantForAutofill="no"
             android:inputType="textPassword"
             android:padding="10dp"
-            android:singleLine="true"
-            android:importantForAutofill="no" />
+            android:singleLine="true" />
 
         <EditText
             android:id="@+id/etConfirmPassword"
@@ -81,10 +81,10 @@
             android:drawablePadding="5dp"
             android:ems="10"
             android:hint="@string/hintConfirmPassword"
+            android:importantForAutofill="no"
             android:inputType="textPassword"
             android:padding="10dp"
-            android:singleLine="true"
-            android:importantForAutofill="no" />
+            android:singleLine="true" />
 
         <Button
             android:id="@+id/bRegister"
@@ -106,7 +106,8 @@
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
             android:text="@string/textHaveAccount"
-            android:textAlignment="center" />
+            android:textAlignment="center"
+            android:textColor="#000000" />
     </LinearLayout>
 
     <TextView
@@ -116,6 +117,7 @@
         android:layout_marginTop="50dp"
         android:text="@string/app_name"
         android:textAlignment="center"
+        android:textColor="#000000"
         android:textSize="40sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

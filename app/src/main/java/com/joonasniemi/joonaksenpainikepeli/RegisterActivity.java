@@ -48,7 +48,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         mDatabase = FirebaseFirestore.getInstance();
 
         //textfields
-        etEmail = findViewById(R.id.etEmail);
+        etEmail = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
         TextView tvLogin = findViewById(R.id.tvLogin);
@@ -64,19 +64,13 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.bRegister) {
-            String email = etEmail.getText().toString().trim();
+            String username = etEmail.getText().toString().trim() + "@joonaksenpainikepeli.net";
             String password = etPassword.getText().toString().trim();
             String confirm = etConfirmPassword.getText().toString().trim();
 
-            if(email.isEmpty()){
+            if(username.isEmpty()){
                 //if email field is empty
-                etEmail.setError(getString(R.string.errorEmailEmpty));
-                etEmail.requestFocus();
-                return;
-            }
-            if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
-                //if email field is not valid
-                etEmail.setError(getString(R.string.errorInvalidEmail));
+                etEmail.setError(getString(R.string.errorUsernameEmpty));
                 etEmail.requestFocus();
                 return;
             }
@@ -92,7 +86,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 return;
             }
 
-            registerUser(email, password);
+            registerUser(username, password);
 
         } else if(v.getId() == R.id.tvLogin){
             Intent intent = new Intent(this, LoginActivity.class);
@@ -122,7 +116,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                             try {
                                 throw Objects.requireNonNull(task.getException());
                             } catch(FirebaseAuthUserCollisionException e) {
-                                etEmail.setError(getString(R.string.errorEmailInUse));
+                                etEmail.setError(getString(R.string.errorUsernameInUse));
                                 etEmail.requestFocus();
                             } catch(Exception e) {
                                 Log.e(TAG, Objects.requireNonNull(e.getMessage()));

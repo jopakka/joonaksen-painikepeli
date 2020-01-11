@@ -25,7 +25,7 @@ import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
     private final String TAG = "myLog";
-    private EditText etEmail;
+    private EditText etUsername;
     private EditText etPassword;
 
     private FirebaseAuth mAuth;
@@ -43,7 +43,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mAuth = FirebaseAuth.getInstance();
 
         //textfields
-        etEmail = findViewById(R.id.etEmail);
+        etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
         TextView tvRegister = findViewById(R.id.tvRegister);
         Button bLogin = findViewById(R.id.bLogin);
@@ -65,23 +65,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.bLogin) {
-            String email = etEmail.getText().toString().trim();
+            String username = etUsername.getText().toString().trim() + "@joonaksenpainikepeli.net";
             String password = etPassword.getText().toString().trim();
 
-            if(email.isEmpty()){
+            if(username.isEmpty()){
                 //if email field is empty
-                etEmail.setError(getString(R.string.errorEmailEmpty));
-                etEmail.requestFocus();
-                return;
-            }
-            if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
-                //if email field is not valid
-                etEmail.setError(getString(R.string.errorInvalidEmail));
-                etEmail.requestFocus();
+                etUsername.setError(getString(R.string.errorUsernameEmpty));
+                etUsername.requestFocus();
                 return;
             }
 
-            loginUser(email, password);
+            loginUser(username, password);
 
         } else if(v.getId() == R.id.tvRegister){
             Intent intent = new Intent(this, RegisterActivity.class);
@@ -106,11 +100,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             try {
                                 throw Objects.requireNonNull(task.getException());
                             } catch(FirebaseAuthUserCollisionException e) {
-                                etEmail.setError(getString(R.string.errorEmailInUse));
-                                etEmail.requestFocus();
+                                etUsername.setError(getString(R.string.errorUsernameInUse));
+                                etUsername.requestFocus();
                             } catch (FirebaseAuthInvalidCredentialsException e){
-                                etEmail.setError(getString(R.string.errorInvalidCredentials));
-                                etEmail.requestFocus();
+                                etUsername.setError(getString(R.string.errorInvalidCredentials));
+                                etUsername.requestFocus();
                             }catch(Exception e) {
                                 Log.e(TAG, Objects.requireNonNull(e.getMessage()));
                             }
