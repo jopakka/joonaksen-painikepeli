@@ -37,6 +37,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private TextView tvPoints;
     private SharedPreferences sp;
     private int userPoints;
+    private TextView tvUsersOnline;
 
     private FirebaseAuth mAuth;
     private DocumentReference counterDocRef;
@@ -56,6 +57,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         //textfields
         tvPoints = findViewById(R.id.tvPoints);
+        tvUsersOnline = findViewById(R.id.tvUsersOnline);
 
         //buttons
         ImageButton ibSettings = findViewById(R.id.ibSettings);
@@ -81,28 +83,34 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             tvPoints.setText("" + getIntent().getIntExtra("points", 0));
         }
 
+        //listens online users
         mDatabase.collection("users").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                if(e != null){
-                    Log.v(TAG, "Error while reading users database");
-                    return;
+                if (e != null) {
+                    Log.d(TAG, "Error while reading users: " + e);
                 }
-                if(queryDocumentSnapshots != null){
-                    for(int i = 0; i < queryDocumentSnapshots.size(); i++){
-                        Log.d(TAG, "Users online: " + queryDocumentSnapshots.getQuery().getFirestore()
-                                .collection("users").document().get());
+                if (queryDocumentSnapshots != null) {
+                    int usersOnline = 0;
+                    for (int i = 0; i < queryDocumentSnapshots.size(); i++) {
+                        if ((boolean) queryDocumentSnapshots.getDocuments().get(i).get("online")) {
+                            usersOnline++;
+                        }
                     }
+                    tvUsersOnline.setText("" + usersOnline);
+
+                } else {
+                    Log.d(TAG, "No users snapshot.");
                 }
             }
         });
 
-        //listen user points from server
+        //listens user points from server
         userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 if (e != null) {
-                    Log.w(TAG, "Could not listen.", e);
+                    Log.d(TAG, "Could not listen.", e);
                     return;
                 }
                 if (documentSnapshot != null && documentSnapshot.exists()) {
@@ -115,7 +123,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        //listen counter value from server
+        //listens counter value from server
         counterDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
@@ -213,26 +221,26 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onBackPressed(){
+    public void onBackPressed() {
         exitAlert();
     }
 
-    private void setUserOnline(){
+    private void setUserOnline() {
         userDocRef.update("online", true).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
+                if (task.isSuccessful()) {
                     Log.d(TAG, "User " + mAuth.getCurrentUser().getEmail() + " is online");
                 }
             }
         });
     }
 
-    private void setUserOffline(){
+    private void setUserOffline() {
         userDocRef.update("online", false).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
+                if (task.isSuccessful()) {
                     Log.d(TAG, "User " + mAuth.getCurrentUser().getEmail() + " is offline");
                 }
             }
@@ -356,7 +364,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private void nextPriceAlert(Long clicks) {
         int messageId;
 
-        if(clicks == 1){
+        if (clicks == 1) {
             messageId = R.string.textNextPriceDesc3;
         } else {
             messageId = R.string.textNextPriceDesc2;
@@ -373,7 +381,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 }).show();
     }
 
-    private void exitAlert(){
+    private void exitAlert() {
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.textExit))
                 .setPositiveButton(R.string.textYes, new DialogInterface.OnClickListener() {
