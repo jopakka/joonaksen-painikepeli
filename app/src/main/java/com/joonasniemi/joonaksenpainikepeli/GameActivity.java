@@ -28,19 +28,20 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Objects;
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
     private final String TAG = "myLog";
     private TextView tvPoints;
-    private ImageButton ibSettings;
     private SharedPreferences sp;
     private int userPoints;
 
     private FirebaseAuth mAuth;
     private DocumentReference counterDocRef;
     private DocumentReference userDocRef;
+    private FirebaseFirestore mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +50,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         //firebase
         mAuth = FirebaseAuth.getInstance();
-        FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+        mDatabase = FirebaseFirestore.getInstance();
         counterDocRef = mDatabase.collection("game").document("counter");
         userDocRef = mDatabase.collection("users").document(Objects.requireNonNull(mAuth.getCurrentUser()).getUid());
 
@@ -57,7 +58,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         tvPoints = findViewById(R.id.tvPoints);
 
         //buttons
-        ibSettings = findViewById(R.id.ibSettings);
+        ImageButton ibSettings = findViewById(R.id.ibSettings);
         Button bAddCounter = findViewById(R.id.bAddCounter);
 
         //click listeners
@@ -66,7 +67,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    protected void onStart(){
+    protected void onStart() {
         super.onStart();
 
         Log.d(TAG, "User logged in: " + Objects.requireNonNull(mAuth.getCurrentUser()).getEmail());
@@ -74,21 +75,37 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         sp = getSharedPreferences("userSavedPoints", Context.MODE_PRIVATE);
         Log.d(TAG, "Points for user " + mAuth.getCurrentUser().getUid() + " in shaderpreferences: " + sp.getInt(mAuth.getCurrentUser().getUid(), 0));
 
-        if(getIntent().getIntExtra("points", 0) == 0){
+        if (getIntent() == null) {
             tvPoints.setText("" + sp.getInt(mAuth.getCurrentUser().getUid(), 0));
         } else {
             tvPoints.setText("" + getIntent().getIntExtra("points", 0));
         }
 
+        mDatabase.collection("users").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if(e != null){
+                    Log.v(TAG, "Error while reading users database");
+                    return;
+                }
+                if(queryDocumentSnapshots != null){
+                    for(int i = 0; i < queryDocumentSnapshots.size(); i++){
+                        Log.d(TAG, "Users online: " + queryDocumentSnapshots.getQuery().getFirestore()
+                                .collection("users").document().get());
+                    }
+                }
+            }
+        });
+
         //listen user points from server
         userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if(e != null){
+                if (e != null) {
                     Log.w(TAG, "Could not listen.", e);
                     return;
                 }
-                if(documentSnapshot != null && documentSnapshot.exists()){
+                if (documentSnapshot != null && documentSnapshot.exists()) {
                     Log.d(TAG, "User points: " + documentSnapshot.get("points"));
                     tvPoints.setText("" + documentSnapshot.get("points"));
                     userPoints = ((Long) documentSnapshot.get("points")).intValue();
@@ -102,11 +119,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         counterDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if(e != null){
+                if (e != null) {
                     Log.w(TAG, "Could not listen.", e);
                     return;
                 }
-                if(documentSnapshot != null && documentSnapshot.exists()){
+                if (documentSnapshot != null && documentSnapshot.exists()) {
                     Log.d(TAG, "Counter value: " + documentSnapshot.get("value"));
                 } else {
                     Log.d(TAG, "No current data");
@@ -116,10 +133,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        setUserOnline();
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
-        if(mAuth.getCurrentUser() != null) {
+        if (mAuth.getCurrentUser() != null) {
             sp.edit().putInt(mAuth.getCurrentUser().getUid(), userPoints).apply();
+            setUserOffline();
         }
         Log.d(TAG, "User points in sharedpreferences (onPause): " + userPoints);
     }
@@ -127,15 +151,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(mAuth.getCurrentUser() != null) {
+        if (mAuth.getCurrentUser() != null) {
             sp.edit().putInt(mAuth.getCurrentUser().getUid(), userPoints).apply();
+            setUserOffline();
         }
         Log.d(TAG, "User points in sharedpreferences (onDestroy): " + userPoints);
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.ibSettings:
                 showPopupMenu(v);
                 break;
@@ -144,10 +169,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             DocumentSnapshot ds = task.getResult();
-                            if(Objects.requireNonNull(ds).exists()){
-                                if((Long) ds.get("points") > 0) {
+                            if (Objects.requireNonNull(ds).exists()) {
+                                if ((Long) ds.get("points") > 0) {
                                     counterDocRef.update("value", FieldValue.increment(1));
                                     checkPrice();
                                 } else {
@@ -167,7 +192,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.bGoal:
                 Intent goalIntent = new Intent(this, GoalActivity.class);
                 startActivity(goalIntent);
@@ -187,7 +212,34 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void showPopupMenu(View v){
+    @Override
+    public void onBackPressed(){
+        exitAlert();
+    }
+
+    private void setUserOnline(){
+        userDocRef.update("online", true).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Log.d(TAG, "User " + mAuth.getCurrentUser().getEmail() + " is online");
+                }
+            }
+        });
+    }
+
+    private void setUserOffline(){
+        userDocRef.update("online", false).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Log.d(TAG, "User " + mAuth.getCurrentUser().getEmail() + " is offline");
+                }
+            }
+        });
+    }
+
+    private void showPopupMenu(View v) {
         Context context = new ContextThemeWrapper(this, R.style.popup_style);
         PopupMenu popup = new PopupMenu(context, v);
         popup.setOnMenuItemClickListener(this);
@@ -195,22 +247,22 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         popup.show();
     }
 
-    private void checkPrice(){
+    private void checkPrice() {
         //checks if player has won
         counterDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
+                if (task.isSuccessful()) {
                     DocumentSnapshot ds = task.getResult();
-                    if(Objects.requireNonNull(ds).exists()){
+                    if (Objects.requireNonNull(ds).exists()) {
                         userDocRef.update("points", FieldValue.increment(-1));
-                        if((Long) ds.get("value") % 500 == 0) {
+                        if ((Long) ds.get("value") % 500 == 0) {
                             userDocRef.update("points", FieldValue.increment(250));
                             price(250);
-                        } else if((Long) ds.get("value") % 100 == 0) {
+                        } else if ((Long) ds.get("value") % 100 == 0) {
                             userDocRef.update("points", FieldValue.increment(40));
                             price(40);
-                        } else if((Long) ds.get("value") % 10 == 0) {
+                        } else if ((Long) ds.get("value") % 10 == 0) {
                             userDocRef.update("points", FieldValue.increment(5));
                             price(5);
                         } else {
@@ -218,10 +270,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                             userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if(task.isSuccessful()){
+                                    if (task.isSuccessful()) {
                                         DocumentSnapshot ds = task.getResult();
-                                        if(Objects.requireNonNull(ds).exists()){
-                                            if((Long) ds.get("points") > 0) {
+                                        if (Objects.requireNonNull(ds).exists()) {
+                                            if ((Long) ds.get("points") > 0) {
                                                 clicksToNextPrice();
                                             } else {
                                                 gameOver();
@@ -253,7 +305,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         finish();
     }
 
-    private void gameOver(){
+    private void gameOver() {
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.gameOverTitle))
                 .setMessage(getString(R.string.gameOverDesc))
@@ -271,13 +323,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 }).show();
     }
 
-    private void clicksToNextPrice(){
+    private void clicksToNextPrice() {
         counterDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
+                if (task.isSuccessful()) {
                     DocumentSnapshot ds = task.getResult();
-                    if(Objects.requireNonNull(ds).exists()){
+                    if (Objects.requireNonNull(ds).exists()) {
                         nextPriceAlert(10 - (Long) ds.get("value") % 10);
                     } else {
                         Log.d(TAG, "No document");
@@ -289,7 +341,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    private void price(long price){
+    private void price(long price) {
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.textCongratulationTitle))
                 .setMessage(getString(R.string.textCongratulationDesc1) + " " + price + " " + getString(R.string.textCongratulationDesc2))
@@ -301,14 +353,39 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 }).show();
     }
 
-    private void nextPriceAlert(Long clicks){
+    private void nextPriceAlert(Long clicks) {
+        int messageId;
+
+        if(clicks == 1){
+            messageId = R.string.textNextPriceDesc3;
+        } else {
+            messageId = R.string.textNextPriceDesc2;
+        }
+
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.textStepsToNextPriceTitle))
-                .setMessage(getString(R.string.textNextPriceDesc1) + " " + clicks + " " + getString(R.string.textNextPriceDesc2))
+                .setMessage(getString(R.string.textNextPriceDesc1) + " " + clicks + " " + getString(messageId))
                 .setPositiveButton(R.string.textOk, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
+                    }
+                }).show();
+    }
+
+    private void exitAlert(){
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.textExit))
+                .setPositiveButton(R.string.textYes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        GameActivity.super.onBackPressed();
+                    }
+                })
+                .setNegativeButton(R.string.textNo, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //do nothing
                     }
                 }).show();
     }

@@ -8,7 +8,8 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/colorBackground</item>
         <item name="android:textColor">@color/colorBlack</item>
-        <item name="android:fontFamily">@font/cherry_cream_soda</item>
+        <item name="fontFamily">@font/dosis_family</item>
+        <item name="android:windowSoftInputMode">adjustPan</item>
     </style>
 
     <style name="popup_style" parent="Widget.AppCompat.PopupMenu">

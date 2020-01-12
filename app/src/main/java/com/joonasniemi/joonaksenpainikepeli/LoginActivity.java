@@ -4,11 +4,15 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -43,7 +47,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         progressDialog = new ProgressDialog(this);
 
-        currentPoints = 0;
 
         //firebase
         mAuth = FirebaseAuth.getInstance();
@@ -57,62 +60,79 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         //click listeners
         bLogin.setOnClickListener(this);
         tvRegister.setOnClickListener(this);
+        etPassword.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    switch (keyCode) {
+                        case KeyEvent.KEYCODE_DPAD_CENTER:
+                        case KeyEvent.KEYCODE_ENTER:
+                            loginUser();
+                            return true;
+
+                        default:
+                            break;
+                    }
+                }
+                return false;
+            }
+        });
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        if(mAuth.getCurrentUser() != null){
+        if (mAuth.getCurrentUser() != null) {
             updateUi();
         }
     }
 
     @Override
     public void onClick(View v) {
-        if(v.getId() == R.id.bLogin) {
-            String username = etUsername.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
+        if (v.getId() == R.id.bLogin) {
+            loginUser();
 
-            if(username.isEmpty()){
-                //if email field is empty
-                etUsername.setError(getString(R.string.errorUsernameEmpty));
-                etUsername.requestFocus();
-                return;
-            }
-            username +=  "@joonaksenpainikepeli.net";
-
-            loginUser(username, password);
-
-        } else if(v.getId() == R.id.tvRegister){
+        } else if (v.getId() == R.id.tvRegister) {
             Intent intent = new Intent(this, RegisterActivity.class);
             startActivity(intent);
             finish();
         }
     }
 
-    private void loginUser(String email, String password){
+    private void loginUser() {
+        String username = etUsername.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+
+        if (username.isEmpty()) {
+            //if email field is empty
+            etUsername.setError(getString(R.string.errorUsernameEmpty));
+            etUsername.requestFocus();
+            return;
+        }
+        username += "@joonaksenpainikepeli.net";
+
         progressDialog.setMessage(getString(R.string.progressLogin));
         progressDialog.show();
 
-        mAuth.signInWithEmailAndPassword(email, password)
+        mAuth.signInWithEmailAndPassword(username, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        progressDialog.hide();
                         if (task.isSuccessful()) {
                             //user is successfully login
                             updateUi();
                         } else {
                             try {
+                                progressDialog.hide();
                                 throw Objects.requireNonNull(task.getException());
-                            } catch(FirebaseAuthUserCollisionException e) {
+                            } catch (FirebaseAuthUserCollisionException e) {
                                 etUsername.setError(getString(R.string.errorUsernameInUse));
                                 etUsername.requestFocus();
-                            } catch (FirebaseAuthInvalidCredentialsException e){
+                            } catch (FirebaseAuthInvalidCredentialsException e) {
                                 etUsername.setError(getString(R.string.errorInvalidCredentials));
                                 etUsername.requestFocus();
-                            }catch(Exception e) {
+                            } catch (Exception e) {
                                 Log.e(TAG, Objects.requireNonNull(e.getMessage()));
                             }
                             Log.d(TAG, "Error when login: " + task.getException());
@@ -122,21 +142,21 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 });
     }
 
-    private void updateUi(){
+    private void updateUi() {
         Intent intent = new Intent(this, GameActivity.class);
-        startActivity(intent);
         intent.putExtra(mAuth.getCurrentUser().getUid(), getCurrentPoints());
+        startActivity(intent);
         finish();
     }
 
-    private int getCurrentPoints(){
+    private int getCurrentPoints() {
         FirebaseFirestore.getInstance().collection("users")
                 .document(mAuth.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
+                if (task.isSuccessful()) {
                     DocumentSnapshot ds = task.getResult();
-                    if(Objects.requireNonNull(ds).exists()){
+                    if (Objects.requireNonNull(ds).exists()) {
                         currentPoints = ((Long) ds.get("points")).intValue();
                     } else {
                         Log.d(TAG, "No document");

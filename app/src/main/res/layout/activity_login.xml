@@ -11,10 +11,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:fontFamily="@font/cherry_cream_soda"
         android:text="@string/app_name"
         android:textAlignment="center"
-        android:textColor="#000000"
         android:textSize="40sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -89,8 +87,7 @@
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
             android:text="@string/textNoAccount"
-            android:textAlignment="center"
-            android:textColor="#000000" />
+            android:textAlignment="center" />
 
     </LinearLayout>
 

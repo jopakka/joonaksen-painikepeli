@@ -4,11 +4,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewOutlineProvider;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -19,6 +25,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -30,6 +37,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private EditText etEmail;
     private EditText etPassword;
     private EditText etConfirmPassword;
+    private int currentPoints;
 
     private ProgressDialog progressDialog;
 
@@ -63,63 +71,64 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onClick(View v) {
-        if(v.getId() == R.id.bRegister) {
-            String username = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
-            String confirm = etConfirmPassword.getText().toString().trim();
+        if (v.getId() == R.id.bRegister) {
+            registerUser();
 
-            if(username.isEmpty()){
-                //if email field is empty
-                etEmail.setError(getString(R.string.errorUsernameEmpty));
-                etEmail.requestFocus();
-                return;
-            }
-            username +=  "@joonaksenpainikepeli.net";
-            if(password.isEmpty() || password.length() < 6){
-                //if password is missing or is too short
-                etPassword.setError(getString(R.string.errorPasswordTooShort));
-                etPassword.requestFocus();
-                return;
-            }
-            if(!password.equals(confirm)) {
-                etConfirmPassword.setError(getString(R.string.errorPasswordNoMatch));
-                etConfirmPassword.requestFocus();
-                return;
-            }
-
-            registerUser(username, password);
-
-        } else if(v.getId() == R.id.tvLogin){
+        } else if (v.getId() == R.id.tvLogin) {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
         }
     }
 
-    private void registerUser(String email, String password) {
+    private void registerUser() {
+        String username = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+        String confirm = etConfirmPassword.getText().toString().trim();
+
+        if (username.isEmpty()) {
+            //if email field is empty
+            etEmail.setError(getString(R.string.errorUsernameEmpty));
+            etEmail.requestFocus();
+            return;
+        }
+        username += "@joonaksenpainikepeli.net";
+        if (password.isEmpty() || password.length() < 6) {
+            //if password is missing or is too short
+            etPassword.setError(getString(R.string.errorPasswordTooShort));
+            etPassword.requestFocus();
+            return;
+        }
+        if (!password.equals(confirm)) {
+            etConfirmPassword.setError(getString(R.string.errorPasswordNoMatch));
+            etConfirmPassword.requestFocus();
+            return;
+        }
+
         progressDialog.setMessage(getString(R.string.progressRegistering));
         progressDialog.show();
 
-        mAuth.createUserWithEmailAndPassword(email, password)
+        mAuth.createUserWithEmailAndPassword(username, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        progressDialog.hide();
                         if (task.isSuccessful()) {
                             //user is registered successfully
                             //gives user 20 starting points
                             String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
                             Map<String, Object> user = new HashMap<>();
                             user.put("points", 20);
+                            user.put("online", true);
                             mDatabase.collection("users").document(userId).set(user);
                             updateUi();
                         } else {
                             try {
+                                progressDialog.hide();
                                 throw Objects.requireNonNull(task.getException());
-                            } catch(FirebaseAuthUserCollisionException e) {
+                            } catch (FirebaseAuthUserCollisionException e) {
                                 etEmail.setError(getString(R.string.errorUsernameInUse));
                                 etEmail.requestFocus();
-                            } catch(Exception e) {
+                            } catch (Exception e) {
                                 Log.e(TAG, Objects.requireNonNull(e.getMessage()));
                                 Toast.makeText(RegisterActivity.this, getString(R.string.errorRegisteringFailed), Toast.LENGTH_SHORT).show();
                             }
@@ -128,9 +137,30 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 });
     }
 
-    private void updateUi(){
+    private void updateUi() {
         Intent intent = new Intent(this, GameActivity.class);
+        intent.putExtra(mAuth.getCurrentUser().getUid(), getCurrentPoints());
         startActivity(intent);
         finish();
+    }
+
+    private int getCurrentPoints() {
+        FirebaseFirestore.getInstance().collection("users")
+                .document(mAuth.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot ds = task.getResult();
+                    if (Objects.requireNonNull(ds).exists()) {
+                        currentPoints = ((Long) ds.get("points")).intValue();
+                    } else {
+                        Log.d(TAG, "No document");
+                    }
+                } else {
+                    Log.d(TAG, "Error while reading value: " + task.getException());
+                }
+            }
+        });
+        return currentPoints;
     }
 }
