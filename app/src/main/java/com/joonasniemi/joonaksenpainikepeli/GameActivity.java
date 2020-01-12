@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
@@ -38,6 +39,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private SharedPreferences sp;
     private int userPoints;
     private TextView tvUsersOnline;
+    private Resources res;
 
     private FirebaseAuth mAuth;
     private DocumentReference counterDocRef;
@@ -66,6 +68,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         //click listeners
         ibSettings.setOnClickListener(this);
         bAddCounter.setOnClickListener(this);
+
+        res = getResources();
     }
 
     @Override
@@ -75,12 +79,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(TAG, "User logged in: " + Objects.requireNonNull(mAuth.getCurrentUser()).getEmail());
 
         sp = getSharedPreferences("userSavedPoints", Context.MODE_PRIVATE);
-        Log.d(TAG, "Points for user " + mAuth.getCurrentUser().getUid() + " in shaderpreferences: " + sp.getInt(mAuth.getCurrentUser().getUid(), 0));
+        Log.d(TAG, "Points for user " + mAuth.getCurrentUser().getEmail() + " in shaderpreferences: " + sp.getInt(mAuth.getCurrentUser().getUid(), 0));
 
         if (getIntent() == null) {
-            tvPoints.setText("" + sp.getInt(mAuth.getCurrentUser().getUid(), 0));
+            String textUsers = String.format(res.getString(R.string.textUsersOnline),
+                    sp.getInt(mAuth.getCurrentUser().getUid(), 0));
+            tvPoints.setText(textUsers);
         } else {
-            tvPoints.setText("" + getIntent().getIntExtra("points", 0));
+            String textUsers = String.format(res.getString(R.string.textUsersOnline),
+                    getIntent().getIntExtra("points", 0));
+            tvPoints.setText(textUsers);
         }
 
         //listens online users
@@ -97,7 +105,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                             usersOnline++;
                         }
                     }
-                    tvUsersOnline.setText("" + usersOnline);
+                    Log.d(TAG, "Users online: " + usersOnline);
+                    String textUsers = String.format(res.getString(R.string.textUsersOnline),
+                            usersOnline);
+                    tvUsersOnline.setText(textUsers);
 
                 } else {
                     Log.d(TAG, "No users snapshot.");
@@ -115,8 +126,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 if (documentSnapshot != null && documentSnapshot.exists()) {
                     Log.d(TAG, "User points: " + documentSnapshot.get("points"));
-                    tvPoints.setText("" + documentSnapshot.get("points"));
-                    userPoints = ((Long) documentSnapshot.get("points")).intValue();
+                    String textPoints = (documentSnapshot.get("points")).toString();
+                    tvPoints.setText(textPoints);
+                    userPoints = documentSnapshot.getLong("points").intValue();
                 } else {
                     Log.d(TAG, "No current data");
                 }
@@ -180,7 +192,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         if (task.isSuccessful()) {
                             DocumentSnapshot ds = task.getResult();
                             if (Objects.requireNonNull(ds).exists()) {
-                                if ((Long) ds.get("points") > 0) {
+                                if (ds.getLong("points") > 0) {
                                     counterDocRef.update("value", FieldValue.increment(1));
                                     checkPrice();
                                 } else {
@@ -264,13 +276,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     DocumentSnapshot ds = task.getResult();
                     if (Objects.requireNonNull(ds).exists()) {
                         userDocRef.update("points", FieldValue.increment(-1));
-                        if ((Long) ds.get("value") % 500 == 0) {
+                        if (ds.getLong("value") % 500 == 0) {
                             userDocRef.update("points", FieldValue.increment(250));
                             price(250);
-                        } else if ((Long) ds.get("value") % 100 == 0) {
+                        } else if (ds.getLong("value") % 100 == 0) {
                             userDocRef.update("points", FieldValue.increment(40));
                             price(40);
-                        } else if ((Long) ds.get("value") % 10 == 0) {
+                        } else if (ds.getLong("value") % 10 == 0) {
                             userDocRef.update("points", FieldValue.increment(5));
                             price(5);
                         } else {
@@ -281,7 +293,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                                     if (task.isSuccessful()) {
                                         DocumentSnapshot ds = task.getResult();
                                         if (Objects.requireNonNull(ds).exists()) {
-                                            if ((Long) ds.get("points") > 0) {
+                                            if (ds.getLong("points") > 0) {
                                                 clicksToNextPrice();
                                             } else {
                                                 gameOver();
@@ -338,7 +350,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 if (task.isSuccessful()) {
                     DocumentSnapshot ds = task.getResult();
                     if (Objects.requireNonNull(ds).exists()) {
-                        nextPriceAlert(10 - (Long) ds.get("value") % 10);
+                        nextPriceAlert(10 - ds.getLong("value") % 10);
                     } else {
                         Log.d(TAG, "No document");
                     }
@@ -362,17 +374,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void nextPriceAlert(Long clicks) {
-        int messageId;
-
-        if (clicks == 1) {
-            messageId = R.string.textNextPriceDesc3;
+        String textNextPrice;
+        if(clicks == 1){
+            textNextPrice = getString(R.string.textNextPriceDesc3);
         } else {
-            messageId = R.string.textNextPriceDesc2;
+            textNextPrice = String.format(res.getString(R.string.textNextPriceDesc2), clicks);
         }
-
         new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.textStepsToNextPriceTitle))
-                .setMessage(getString(R.string.textNextPriceDesc1) + " " + clicks + " " + getString(messageId))
+                .setMessage(getString(R.string.textNextPriceDesc1) + textNextPrice)
                 .setPositiveButton(R.string.textOk, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
