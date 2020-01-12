@@ -82,12 +82,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(TAG, "Points for user " + mAuth.getCurrentUser().getEmail() + " in shaderpreferences: " + sp.getInt(mAuth.getCurrentUser().getUid(), 0));
 
         if (getIntent() == null) {
-            String textUsers = String.format(res.getString(R.string.textUsersOnline),
-                    sp.getInt(mAuth.getCurrentUser().getUid(), 0));
+            String textUsers = Integer.toString(sp.getInt(mAuth.getCurrentUser().getUid(), 0));
             tvPoints.setText(textUsers);
         } else {
-            String textUsers = String.format(res.getString(R.string.textUsersOnline),
-                    getIntent().getIntExtra("points", 0));
+            String textUsers = Integer.toString(getIntent().getIntExtra("points", 0));
             tvPoints.setText(textUsers);
         }
 
