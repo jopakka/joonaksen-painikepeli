@@ -4,19 +4,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Outline;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.Layout;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewOutlineProvider;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -31,14 +31,12 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.Objects;
 
-public class GameActivity extends AppCompatActivity implements View.OnClickListener {
+public class GameActivity extends AppCompatActivity implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
     private final String TAG = "myLog";
     private TextView tvPoints;
-    private LinearLayout settingMenu;
     private ImageButton ibSettings;
-    private Button bGoal;
-    private Button bInfo;
-    private Button bLogout;
+    private SharedPreferences sp;
+    private int userPoints;
 
     private FirebaseAuth mAuth;
     private DocumentReference counterDocRef;
@@ -58,22 +56,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         //textfields
         tvPoints = findViewById(R.id.tvPoints);
 
-        //layouts
-        settingMenu = findViewById(R.id.layoutSettings);
-
         //buttons
         ibSettings = findViewById(R.id.ibSettings);
         Button bAddCounter = findViewById(R.id.bAddCounter);
-        bGoal = findViewById(R.id.bGoal);
-        bInfo = findViewById(R.id.bInfo);
-        bLogout = findViewById(R.id.bLogout);
 
         //click listeners
         ibSettings.setOnClickListener(this);
         bAddCounter.setOnClickListener(this);
-        bGoal.setOnClickListener(this);
-        bInfo.setOnClickListener(this);
-        bLogout.setOnClickListener(this);
     }
 
     @Override
@@ -81,6 +70,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         super.onStart();
 
         Log.d(TAG, "User logged in: " + Objects.requireNonNull(mAuth.getCurrentUser()).getEmail());
+
+        sp = getSharedPreferences("userSavedPoints", Context.MODE_PRIVATE);
+        Log.d(TAG, "Points for user " + mAuth.getCurrentUser().getUid() + " in shaderpreferences: " + sp.getInt(mAuth.getCurrentUser().getUid(), 0));
+
+        if(getIntent().getIntExtra("points", 0) == 0){
+            tvPoints.setText("" + sp.getInt(mAuth.getCurrentUser().getUid(), 0));
+        } else {
+            tvPoints.setText("" + getIntent().getIntExtra("points", 0));
+        }
 
         //listen user points from server
         userDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -93,6 +91,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 if(documentSnapshot != null && documentSnapshot.exists()){
                     Log.d(TAG, "User points: " + documentSnapshot.get("points"));
                     tvPoints.setText("" + documentSnapshot.get("points"));
+                    userPoints = ((Long) documentSnapshot.get("points")).intValue();
                 } else {
                     Log.d(TAG, "No current data");
                 }
@@ -117,18 +116,29 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        if(mAuth.getCurrentUser() != null) {
+            sp.edit().putInt(mAuth.getCurrentUser().getUid(), userPoints).apply();
+        }
+        Log.d(TAG, "User points in sharedpreferences (onPause): " + userPoints);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(mAuth.getCurrentUser() != null) {
+            sp.edit().putInt(mAuth.getCurrentUser().getUid(), userPoints).apply();
+        }
+        Log.d(TAG, "User points in sharedpreferences (onDestroy): " + userPoints);
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.ibSettings:
-                if(settingMenu.getVisibility() == View.GONE){
-                    settingMenu.setVisibility(View.VISIBLE);
-                    ibSettings.setBackground(ContextCompat.getDrawable(this, R.drawable.rounded_settingsbutton_bg));
-
-                } else{
-                    settingMenu.setVisibility(View.GONE);
-                    ibSettings.setBackground(null);
-                }
-                    break;
+                showPopupMenu(v);
+                break;
 
             case R.id.bAddCounter:
                 userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -152,21 +162,37 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 });
                 break;
+        }
+    }
 
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()){
             case R.id.bGoal:
                 Intent goalIntent = new Intent(this, GoalActivity.class);
                 startActivity(goalIntent);
-                break;
+                return true;
 
             case R.id.bInfo:
                 Intent infoIntent = new Intent(this, InfoActivity.class);
                 startActivity(infoIntent);
-                break;
+                return true;
 
             case R.id.bLogout:
                 logout();
-                break;
+                return true;
+
+            default:
+                return false;
         }
+    }
+
+    private void showPopupMenu(View v){
+        Context context = new ContextThemeWrapper(this, R.style.popup_style);
+        PopupMenu popup = new PopupMenu(context, v);
+        popup.setOnMenuItemClickListener(this);
+        popup.inflate(R.menu.settings_popup);
+        popup.show();
     }
 
     private void checkPrice(){
@@ -220,6 +246,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void logout() {
+        sp.edit().putInt(mAuth.getCurrentUser().getUid(), userPoints).apply();
         mAuth.signOut();
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);

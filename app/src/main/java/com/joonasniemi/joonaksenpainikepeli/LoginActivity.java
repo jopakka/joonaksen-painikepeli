@@ -20,6 +20,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
 
@@ -27,6 +30,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private final String TAG = "myLog";
     private EditText etUsername;
     private EditText etPassword;
+    private int currentPoints;
 
     private FirebaseAuth mAuth;
 
@@ -38,6 +42,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_login);
 
         progressDialog = new ProgressDialog(this);
+
+        currentPoints = 0;
 
         //firebase
         mAuth = FirebaseAuth.getInstance();
@@ -119,6 +125,27 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void updateUi(){
         Intent intent = new Intent(this, GameActivity.class);
         startActivity(intent);
+        intent.putExtra(mAuth.getCurrentUser().getUid(), getCurrentPoints());
         finish();
+    }
+
+    private int getCurrentPoints(){
+        FirebaseFirestore.getInstance().collection("users")
+                .document(mAuth.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    DocumentSnapshot ds = task.getResult();
+                    if(Objects.requireNonNull(ds).exists()){
+                        currentPoints = ((Long) ds.get("points")).intValue();
+                    } else {
+                        Log.d(TAG, "No document");
+                    }
+                } else {
+                    Log.d(TAG, "Error while reading value: " + task.getException());
+                }
+            }
+        });
+        return currentPoints;
     }
 }
