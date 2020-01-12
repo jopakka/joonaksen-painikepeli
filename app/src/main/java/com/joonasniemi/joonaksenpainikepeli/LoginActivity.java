@@ -65,7 +65,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.bLogin) {
-            String username = etUsername.getText().toString().trim() + "@joonaksenpainikepeli.net";
+            String username = etUsername.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
 
             if(username.isEmpty()){
@@ -74,6 +74,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 etUsername.requestFocus();
                 return;
             }
+            username +=  "@joonaksenpainikepeli.net";
 
             loginUser(username, password);
 

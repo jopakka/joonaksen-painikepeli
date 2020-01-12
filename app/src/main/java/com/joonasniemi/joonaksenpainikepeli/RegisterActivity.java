@@ -64,7 +64,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.bRegister) {
-            String username = etEmail.getText().toString().trim() + "@joonaksenpainikepeli.net";
+            String username = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
             String confirm = etConfirmPassword.getText().toString().trim();
 
@@ -74,6 +74,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 etEmail.requestFocus();
                 return;
             }
+            username +=  "@joonaksenpainikepeli.net";
             if(password.isEmpty() || password.length() < 6){
                 //if password is missing or is too short
                 etPassword.setError(getString(R.string.errorPasswordTooShort));
