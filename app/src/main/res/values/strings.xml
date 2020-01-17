@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Joonaksen \nsoutupeli</string>
+    <string name="app_name">Joonaksen \nmerirosvopeli</string>
     <string name="buttonRegister">Rekisteröidy</string>
     <string name="hintUsername">Käyttäjätunnus</string>
     <string name="hintPassword">Salasana</string>
@@ -14,35 +14,44 @@
     <string name="progressLogin">Kirjaudutaan sisään&#8230;</string>
     <string name="textLoginFailed">Kirjautuminen epäonnistui. Ole hyvä ja yritä uudestaan.</string>
     <string name="textSettings">Asetukset</string>
-    <string name="textPoints">Energiasi:</string>
     <string name="progressRegistering">Rekisteröidytään&#8230;</string>
     <string name="errorUsernameEmpty">Käyttäjätunnus puuttuu</string>
     <string name="errorPasswordTooShort">Salasanan oltava vähintään 6 merkkiä pitkä</string>
     <string name="errorPasswordNoMatch">Salasanat eivät täsmää</string>
-    <string name="buttonAddCounter">Souda</string>
     <string name="errorInvalidCredentials">Käyttäjätunnus ja/tai salasana väärin</string>
-    <string name="gameOverTitle">Energiasi loppuivat</string>
-    <string name="gameOverDesc">Sinulla ei ole enään energiaa jäljellä. Haluatko aloittaa alusta, jolloin saat 20 energiaa? Muutoin sinut kirjataan ulos.</string>
-    <string name="textYes">Kyllä</string>
-    <string name="textNo">Ei</string>
-    <string name="textCongratulationTitle">Onnittelut</string>
-    <string name="textCongratulationDesc1">Sait juuri</string>
-    <string name="textCongratulationDesc2">energiaa!</string>
-    <string name="textYea">Jee!</string>
-    <string name="textNextPriceDesc1">Seuraava energiajuoma on&#160;</string>
-    <string name="textNextPriceDesc2">%1$d soudun päässä.</string>
-    <string name="textNextPriceDesc3">soudun päässä.</string>
-    <string name="textOk">Selvä</string>
+
+    <string name="buttonYes">Kyllä</string>
+    <string name="buttonNo">Ei</string>
+    <string name="buttonYarr">Yarr!</string>
+    <string name="buttonAddCounter">Souda</string>
     <string name="buttonGoal">Tavoite</string>
     <string name="buttonInfo">Tietoa</string>
-    <string name="textGoalDesc">Joonaksen soutupeli on moninpeli, jossa jokainen pelaaja soutaa omalla
-        tahdillaan, ja mikäli pelaajan kohdalle osuu energiajuoma niin hän saa siitä energiaa.\n\n
-        <b>Palkinnot:</b>\n
-        Joka 500. energiajuoma: 250 energiaa\n
-        Joka 100. energiajuoma: 40 pistettä\n
-        Joka 10. energiajuoma: 5 pistettä\n\n</string>
-    <string name="textInfoDesc">Tietokannoissa käytetty Google Firebasea. \n\n
-        Tekijä: Joonas Niemi</string>
+
+    <string name="gameOverTitle">Kultakolikkosi loppuivat</string>
+    <string name="gameOverDesc">Sinulla ei ole enään kultakolikoita jäljellä. Haluatko aloittaa alusta, jolloin saat 20 kultakolikkoa? Muutoin sinut kirjataan ulos.</string>
+
+    <string name="textPoints">Kultakolikkosi:</string>
     <string name="textExit">Haluatko varmasti poistua?</string>
-    <string name="textUsersOnline">Soutajia veneessä: %1$d</string>
+    <string name="textUsersOnline">Merirosvoja paikalla: %1$d</string>
+    <string name="textPriceImgDesc">Palkinto kuva</string>
+
+    <string name="textBigPrice">Löysit aarrearkun ja sait %1$d kultakolikkoa</string>
+    <string name="textMediumPrice">Löysit kolikkopussin ja sait %1$d kultakolikkoa</string>
+    <string name="textSmallPrice">Löysit %1$d kultakolikkoa</string>
+
+    <string name="textGoalDesc">Joonaksen merirosvo on moninpeli, jossa jokainen merirosvo soutaa omilla
+        veneillään noutamaan aarretta ja se merirosvo, joka kerkeää aarteen luokse ensimmäisenä saa pitää sen.\n\n
+        Olet kumminkin sen verran kömpelö, että joka soudulla tiputat yhden kolikon mereen, ja mikäli
+        sinulla ei ole enää kolikkoja jäljellä, niin joudut palaamaan laivalle.\n\n
+        <b>Aarteet:</b>\n
+        Joka 500. aarre: 250 kultakolikkoa\n
+        Joka 100. aarre: 40 kultakolikkoa\n
+        Joka 10. aarre: 5 kultakolikkoa\n\n</string>
+    <string name="textInfoDesc">Tietokannoissa käytetty Google Firebasea. Fontti: Google fonts - Dosis.\n\n
+        Tekijä: Joonas Niemi</string>
+
+    <plurals name="pluralNextPrice">
+        <item quantity="one">Seuraava aarre näkyy soudun päässä.</item>
+        <item quantity="other">Seuraava aarre näkyy %1$d soudun päässä.</item>
+    </plurals>
 </resources>

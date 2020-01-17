@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -37,9 +38,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private final String TAG = "myLog";
     private TextView tvPoints;
     private SharedPreferences sp;
-    private int userPoints;
     private TextView tvUsersOnline;
     private Resources res;
+
+    private int userPoints;
+    private int bigPrice = 250;
+    private int mediumPrice = 40;
+    private int smallPrice = 5;
 
     private FirebaseAuth mAuth;
     private DocumentReference counterDocRef;
@@ -79,8 +84,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(TAG, "User logged in: " + Objects.requireNonNull(mAuth.getCurrentUser()).getEmail());
 
         sp = getSharedPreferences("userSavedPoints", Context.MODE_PRIVATE);
-        Log.d(TAG, "Points for user " + mAuth.getCurrentUser().getEmail() + " in shaderpreferences: " + sp.getInt(mAuth.getCurrentUser().getUid(), 0));
+        Log.d(TAG, "Points for user " + mAuth.getCurrentUser().getEmail() + " in shaderpreferences: "
+                + sp.getInt(mAuth.getCurrentUser().getUid(), 0));
 
+        //set users points value from server if Intent is null
         if (getIntent() == null) {
             String textUsers = Integer.toString(sp.getInt(mAuth.getCurrentUser().getUid(), 0));
             tvPoints.setText(textUsers);
@@ -124,9 +131,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 if (documentSnapshot != null && documentSnapshot.exists()) {
                     Log.d(TAG, "User points: " + documentSnapshot.get("points"));
-                    String textPoints = (documentSnapshot.get("points")).toString();
+                    String textPoints = (Objects.requireNonNull(documentSnapshot.get("points"))).toString();
                     tvPoints.setText(textPoints);
-                    userPoints = documentSnapshot.getLong("points").intValue();
+                    userPoints = Objects.requireNonNull(documentSnapshot.getLong("points")).intValue();
                 } else {
                     Log.d(TAG, "No current data");
                 }
@@ -153,7 +160,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        setUserOnline();
+        setUserStatusOnline();
     }
 
     @Override
@@ -161,7 +168,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         super.onPause();
         if (mAuth.getCurrentUser() != null) {
             sp.edit().putInt(mAuth.getCurrentUser().getUid(), userPoints).apply();
-            setUserOffline();
+            setUserStatusOffline();
         }
         Log.d(TAG, "User points in sharedpreferences (onPause): " + userPoints);
     }
@@ -171,7 +178,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         super.onDestroy();
         if (mAuth.getCurrentUser() != null) {
             sp.edit().putInt(mAuth.getCurrentUser().getUid(), userPoints).apply();
-            setUserOffline();
+            setUserStatusOffline();
         }
         Log.d(TAG, "User points in sharedpreferences (onDestroy): " + userPoints);
     }
@@ -180,7 +187,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ibSettings:
-                showPopupMenu(v);
+                showSettingMenu(v);
                 break;
 
             case R.id.bAddCounter:
@@ -235,29 +242,29 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         exitAlert();
     }
 
-    private void setUserOnline() {
+    private void setUserStatusOnline() {
         userDocRef.update("online", true).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Log.d(TAG, "User " + mAuth.getCurrentUser().getEmail() + " is online");
+                    Log.d(TAG, "User " + Objects.requireNonNull(mAuth.getCurrentUser()).getEmail() + " is online");
                 }
             }
         });
     }
 
-    private void setUserOffline() {
+    private void setUserStatusOffline() {
         userDocRef.update("online", false).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Log.d(TAG, "User " + mAuth.getCurrentUser().getEmail() + " is offline");
+                    Log.d(TAG, "User " + Objects.requireNonNull(mAuth.getCurrentUser()).getEmail() + " is offline");
                 }
             }
         });
     }
 
-    private void showPopupMenu(View v) {
+    private void showSettingMenu(View v) {
         Context context = new ContextThemeWrapper(this, R.style.popup_style);
         PopupMenu popup = new PopupMenu(context, v);
         popup.setOnMenuItemClickListener(this);
@@ -265,8 +272,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         popup.show();
     }
 
+    //checks if player has won
     private void checkPrice() {
-        //checks if player has won
         counterDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -275,14 +282,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     if (Objects.requireNonNull(ds).exists()) {
                         userDocRef.update("points", FieldValue.increment(-1));
                         if (ds.getLong("value") % 500 == 0) {
-                            userDocRef.update("points", FieldValue.increment(250));
-                            price(250);
+                            userDocRef.update("points", FieldValue.increment(bigPrice));
+                            givePricePopup(bigPrice);
                         } else if (ds.getLong("value") % 100 == 0) {
-                            userDocRef.update("points", FieldValue.increment(40));
-                            price(40);
+                            userDocRef.update("points", FieldValue.increment(mediumPrice));
+                            givePricePopup(mediumPrice);
                         } else if (ds.getLong("value") % 10 == 0) {
-                            userDocRef.update("points", FieldValue.increment(5));
-                            price(5);
+                            userDocRef.update("points", FieldValue.increment(smallPrice));
+                            givePricePopup(smallPrice);
                         } else {
                             //checks that player points are positive
                             userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -316,7 +323,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void logout() {
-        sp.edit().putInt(mAuth.getCurrentUser().getUid(), userPoints).apply();
+        sp.edit().putInt(Objects.requireNonNull(mAuth.getCurrentUser()).getUid(), userPoints).apply();
+        setUserStatusOffline();
         mAuth.signOut();
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
@@ -327,13 +335,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.gameOverTitle))
                 .setMessage(getString(R.string.gameOverDesc))
-                .setPositiveButton(R.string.textYes, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.buttonYes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         userDocRef.update("points", 20);
                     }
                 })
-                .setNegativeButton(R.string.textNo, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.buttonNo, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         logout();
@@ -348,7 +356,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 if (task.isSuccessful()) {
                     DocumentSnapshot ds = task.getResult();
                     if (Objects.requireNonNull(ds).exists()) {
-                        nextPriceAlert(10 - ds.getLong("value") % 10);
+                        nextPriceAlert(10 - Objects.requireNonNull(ds.getLong("value")).intValue() % 10);
                     } else {
                         Log.d(TAG, "No document");
                     }
@@ -359,31 +367,45 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    private void price(long price) {
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.textCongratulationTitle))
-                .setMessage(getString(R.string.textCongratulationDesc1) + " " + price + " " + getString(R.string.textCongratulationDesc2))
-                .setPositiveButton(R.string.textYea, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+    private void givePricePopup(int price) {
+        final AlertDialog alert = new AlertDialog.Builder(this)
+                .setView(R.layout.price_popup_layout)
+                .create();
 
-                    }
-                }).show();
+        alert.show();
+
+        TextView tv = alert.findViewById(R.id.tvPriceTitle);
+        ImageView iv = alert.findViewById(R.id.ivPriceImage);
+        if (tv != null) {
+            if (price == bigPrice) {
+                tv.setText(res.getString(R.string.textBigPrice, bigPrice));
+                iv.setImageResource(R.drawable.treasure_chest);
+            } else if (price == mediumPrice) {
+                tv.setText(res.getString(R.string.textMediumPrice, mediumPrice));
+                iv.setImageResource(R.drawable.coin_purse);
+            } else {
+                tv.setText(res.getString(R.string.textSmallPrice, smallPrice));
+                iv.setImageResource(R.drawable.coin);
+            }
+        }
+
+        Button button = alert.findViewById(R.id.bPriceOk);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alert.dismiss();
+            }
+        });
     }
 
-    private void nextPriceAlert(Long clicks) {
-        String textNextPrice;
-        if(clicks == 1){
-            textNextPrice = getString(R.string.textNextPriceDesc3);
-        } else {
-            textNextPrice = String.format(res.getString(R.string.textNextPriceDesc2), clicks);
-        }
+    private void nextPriceAlert(int clicks) {
         new AlertDialog.Builder(this)
-                .setMessage(getString(R.string.textNextPriceDesc1) + textNextPrice)
-                .setPositiveButton(R.string.textOk, new DialogInterface.OnClickListener() {
+                .setCancelable(false)
+                .setMessage(res.getQuantityString(R.plurals.pluralNextPrice, clicks, clicks))
+                .setPositiveButton(R.string.buttonYarr, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
+                        dialog.dismiss();
                     }
                 }).show();
     }
@@ -391,16 +413,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private void exitAlert() {
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.textExit))
-                .setPositiveButton(R.string.textYes, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.buttonYes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         GameActivity.super.onBackPressed();
                     }
                 })
-                .setNegativeButton(R.string.textNo, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.buttonNo, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //do nothing
+                        dialog.dismiss();
                     }
                 }).show();
     }
