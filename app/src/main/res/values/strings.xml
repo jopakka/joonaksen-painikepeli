@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Joonaksen \nmerirosvopeli</string>
+    <string name="app_name">Merirosvopeli</string>
     <string name="buttonRegister">Rekisteröidy</string>
     <string name="hintUsername">Käyttäjätunnus</string>
     <string name="hintPassword">Salasana</string>
@@ -39,7 +39,7 @@
     <string name="textMediumPrice">Löysit kolikkopussin ja sait %1$d kultakolikkoa</string>
     <string name="textSmallPrice">Löysit %1$d kultakolikkoa</string>
 
-    <string name="textGoalDesc">Joonaksen merirosvo on moninpeli, jossa jokainen merirosvo soutaa omilla
+    <string name="textGoalDesc">Merirosvo on moninpeli, jossa jokainen merirosvo soutaa omilla
         veneillään noutamaan aarretta ja se merirosvo, joka kerkeää aarteen luokse ensimmäisenä saa pitää sen.\n\n
         Olet kumminkin sen verran kömpelö, että joka soudulla tiputat yhden kolikon mereen, ja mikäli
         sinulla ei ole enää kolikkoja jäljellä, niin joudut palaamaan laivalle.\n\n

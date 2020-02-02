@@ -17,7 +17,7 @@
         android:scaleType="fitXY"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_settings_black_24dp" />
+        app:srcCompat="@drawable/my_settings" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -33,13 +33,13 @@
         android:id="@+id/bAddCounter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/custom_button"
         android:text="@string/buttonAddCounter"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvPoints" />
+        app:layout_constraintTop_toBottomOf="@+id/tvPoints"
+        app:layout_constraintVertical_bias="0.25" />
 
     <TextView
         android:id="@+id/tvPoints"

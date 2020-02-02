@@ -10,11 +10,16 @@
         <item name="android:textColor">@color/colorBlack</item>
         <item name="fontFamily">@font/dosis_family</item>
         <item name="android:windowSoftInputMode">adjustPan</item>
+        <item name="buttonStyle">@style/myButton</item>
     </style>
 
     <style name="popup_style" parent="Widget.AppCompat.PopupMenu">
-        <item name="android:textColor">@color/colorBlack</item>
-        <item name="android:itemBackground">@color/colorGreyBg</item>
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:backgroundTint">@color/colorGreyBg</item>
+    </style>
+
+    <style name="myButton" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/my_button</item>
     </style>
 
 </resources>

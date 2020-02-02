@@ -5,16 +5,21 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
+import android.view.Display;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -379,18 +384,18 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         if (tv != null) {
             if (price == bigPrice) {
                 tv.setText(res.getString(R.string.textBigPrice, bigPrice));
-                iv.setImageResource(R.drawable.treasure_chest);
+                Objects.requireNonNull(iv).setImageResource(R.drawable.treasure_chest);
             } else if (price == mediumPrice) {
                 tv.setText(res.getString(R.string.textMediumPrice, mediumPrice));
-                iv.setImageResource(R.drawable.coin_purse);
+                Objects.requireNonNull(iv).setImageResource(R.drawable.coin_purse);
             } else {
                 tv.setText(res.getString(R.string.textSmallPrice, smallPrice));
-                iv.setImageResource(R.drawable.coin);
+                Objects.requireNonNull(iv).setImageResource(R.drawable.coin);
             }
         }
 
         Button button = alert.findViewById(R.id.bPriceOk);
-        button.setOnClickListener(new View.OnClickListener() {
+        Objects.requireNonNull(button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 alert.dismiss();

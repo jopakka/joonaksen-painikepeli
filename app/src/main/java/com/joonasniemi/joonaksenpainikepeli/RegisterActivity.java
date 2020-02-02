@@ -132,20 +132,20 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     private void updateUi() {
         Intent intent = new Intent(this, GameActivity.class);
-        intent.putExtra(mAuth.getCurrentUser().getUid(), getCurrentPoints());
+        intent.putExtra(Objects.requireNonNull(mAuth.getCurrentUser()).getUid(), getCurrentPoints());
         startActivity(intent);
         finish();
     }
 
     private int getCurrentPoints() {
         FirebaseFirestore.getInstance().collection("users")
-                .document(mAuth.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                .document(Objects.requireNonNull(mAuth.getCurrentUser()).getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot ds = task.getResult();
                     if (Objects.requireNonNull(ds).exists()) {
-                        currentPoints = ((Long) ds.get("points")).intValue();
+                        currentPoints = ((Long) Objects.requireNonNull(ds.get("points"))).intValue();
                     } else {
                         Log.d(TAG, "No document");
                     }
